@@ -64,7 +64,8 @@ export const services = {
         patterns: [
             "movie/:title-:id"
         ],
-        tld: "sg"
+        tld: "sg",
+        altDomains: ["mewatch.com"]
     },
     ok: {
         patterns: [
