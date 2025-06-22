@@ -26,6 +26,7 @@ import rutube from "./services/rutube.js";
 import dailymotion from "./services/dailymotion.js";
 import snapchat from "./services/snapchat.js";
 import loom from "./services/loom.js";
+import mewatch from "./services/mewatch.js";
 import facebook from "./services/facebook.js";
 import bluesky from "./services/bluesky.js";
 import xiaohongshu from "./services/xiaohongshu.js";
@@ -222,6 +223,12 @@ export default async function({ host, patternMatch, params, isSession }) {
             case "loom":
                 r = await loom({
                     id: patternMatch.id
+                });
+                break;
+
+            case "mewatch":
+                r = await mewatch({
+                    ...patternMatch,
                 });
                 break;
 

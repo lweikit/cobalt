@@ -111,13 +111,6 @@ export const runAPI = async (express, app, __dirname, isPrimary = true) => {
 
     app.set('trust proxy', ['loopback', 'uniquelocal']);
 
-    if (env.verboseLogs) {
-        app.use((req, _res, next) => {
-            console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
-            next();
-        });
-    }
-
     app.use('/', cors({
         methods: ['GET', 'POST'],
         exposedHeaders: [

@@ -14,22 +14,8 @@ async function getAssetMeta(id) {
 
 export default async function({ id, title }) {
     const meta = await getAssetMeta(id);
-    let assetId = meta.assetId;
-    let itemTitle = meta.title ?? title;
-
-    if (!assetId) {
-        const pageUrl = `https://www.mewatch.sg/movie/${title}-${id}`;
-        const headers = {
-            'User-Agent': genericUserAgent,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        };
-        const html = await fetch(pageUrl, { headers }).then(r => r.text()).catch(() => {});
-        if (!html) return { error: "fetch.fail" };
-
-        const assetMatch = html.match(/"assetId"\s*:\s*"?(\d+)"?/);
-        assetId = assetMatch ? assetMatch[1] : null;
-        if (!assetId) return { error: "fetch.empty" };
-    }
+    const assetId = meta.assetId;
+    if (!assetId) return { error: "fetch.empty" };
 
     const body = {
         "1": { service: "ottuser", action: "anonymousLogin", partnerId: "147" },
