@@ -13,6 +13,9 @@ export const testers = {
     "loom": pattern =>
         pattern.id?.length <= 32,
 
+    "mewatch": pattern =>
+        pattern.id?.length <= 9,
+
     "ok": pattern =>
         pattern.id?.length <= 16,
 
