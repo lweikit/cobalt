@@ -17,6 +17,9 @@ const serviceHeaders = {
         referer: 'https://www.youtube.com',
         DNT: '?1'
     },
+    mewatch: {
+        referer: 'https://www.mewatch.sg/'
+    },
     vk: {
         'user-agent': vkClientAgent
     }
