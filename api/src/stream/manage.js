@@ -266,6 +266,6 @@ export async function verifyStream(id, hmac, exp, secret, iv) {
         return wrapStream(streamInfo);
     }
     catch {
-        return { status: 500 };
+        return { status: 404 };
     }
 }

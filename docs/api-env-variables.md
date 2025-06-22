@@ -14,6 +14,7 @@ this document is not final and will expand over time. feel free to improve it!
 | DISABLED_SERVICES      |         | `bilibili,youtube`                    |
 | FORCE_LOCAL_PROCESSING | `never` | `always`                              |
 | API_ENV_FILE           |         | `/.env`                               |
+| VERBOSE_LOGS           | `0`     | `1`                                   |
 
 [*view details*](#general)
 
@@ -114,6 +115,9 @@ when set to `always`, all requests will be forced to use on-device processing, n
 
 ### API_ENV_FILE
 the URL or local path to a `key=value`-style environment variable file. this is used for dynamically reloading environment variables. **not all environment variables are able to be updated by this.** (e.g. the ratelimiters are instantiated when starting cobalt, and cannot be changed)
+
+### VERBOSE_LOGS
+when set to `1`, incoming requests will be logged to stdout. useful for debugging.
 
 ## networking
 [*jump to the table*](#networking-vars)

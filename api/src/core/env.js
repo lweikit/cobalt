@@ -74,6 +74,8 @@ export const loadEnvs = (env = process.env) => {
         // "never" | "session" | "always"
         forceLocalProcessing: env.FORCE_LOCAL_PROCESSING ?? "never",
 
+        verboseLogs: env.VERBOSE_LOGS === '1',
+
         envFile: env.API_ENV_FILE,
         envRemoteReloadInterval: 300,
     };
