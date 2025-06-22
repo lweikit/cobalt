@@ -157,6 +157,10 @@ export default function({
                     }
                     break;
 
+                case "mewatch":
+                    params = { type: r.type };
+                    break;
+
                 case "ok":
                 case "vk":
                 case "tiktok":
