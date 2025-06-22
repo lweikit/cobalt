@@ -68,6 +68,7 @@ export default async function({ id, title }) {
     const isHLS = source.format === "applehttp";
 
     return {
+        type: "merge",
         urls: source.url,
         isHLS,
         filenameAttributes: {
