@@ -1,18 +1,35 @@
 import { genericUserAgent } from "../../config.js";
 
-export default async function({ id, title }) {
-    const pageUrl = `https://www.mewatch.sg/movie/${title}-${id}`;
-    const headers = {
-        'User-Agent': genericUserAgent,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+async function getAssetMeta(id) {
+    const url = `https://cdn.mewatch.sg/api/items/${id}?segments=all`;
+    const headers = { 'User-Agent': genericUserAgent, Accept: 'application/json' };
+
+    const data = await fetch(url, { headers }).then(r => r.json()).catch(() => {});
+    const item = data?.items?.[0] ?? data;
+    return {
+        assetId: item?.customId || item?.customFields?.EntryId,
+        title: item?.title
     };
+}
 
-    const html = await fetch(pageUrl, { headers }).then(r => r.text()).catch(() => {});
-    if (!html) return { error: "fetch.fail" };
+export default async function({ id, title }) {
+    const meta = await getAssetMeta(id);
+    let assetId = meta.assetId;
+    let itemTitle = meta.title ?? title;
 
-    const assetMatch = html.match(/"assetId"\s*:\s*"?(\d+)"?/);
-    const assetId = assetMatch ? assetMatch[1] : null;
-    if (!assetId) return { error: "fetch.empty" };
+    if (!assetId) {
+        const pageUrl = `https://www.mewatch.sg/movie/${title}-${id}`;
+        const headers = {
+            'User-Agent': genericUserAgent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        };
+        const html = await fetch(pageUrl, { headers }).then(r => r.text()).catch(() => {});
+        if (!html) return { error: "fetch.fail" };
+
+        const assetMatch = html.match(/"assetId"\s*:\s*"?(\d+)"?/);
+        assetId = assetMatch ? assetMatch[1] : null;
+        if (!assetId) return { error: "fetch.empty" };
+    }
 
     const body = {
         "1": { service: "ottuser", action: "anonymousLogin", partnerId: "147" },
