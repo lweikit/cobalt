@@ -60,6 +60,13 @@ export const services = {
     loom: {
         patterns: ["share/:id", "embed/:id"],
     },
+    mewatch: {
+        patterns: [
+            "movie/:title-:id"
+        ],
+        tld: "sg",
+        altDomains: ["mewatch.com"]
+    },
     ok: {
         patterns: [
             "video/:id",

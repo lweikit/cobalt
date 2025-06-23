@@ -14,7 +14,6 @@ this document is not final and will expand over time. feel free to improve it!
 | DISABLED_SERVICES      |         | `bilibili,youtube`                    |
 | FORCE_LOCAL_PROCESSING | `never` | `always`                              |
 | API_ENV_FILE           |         | `/.env`                               |
-
 [*view details*](#general)
 
 ### networking vars

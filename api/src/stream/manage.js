@@ -12,18 +12,18 @@ import { hashHmac } from "../security/secrets.js";
 import { zip } from "../misc/utils.js";
 
 // optional dependency
-const freebind = env.freebindCIDR && await import('freebind').catch(() => {});
+const freebind = env.freebindCIDR && (await import("freebind").catch(() => {}));
 
-const streamCache = new Store('streams');
+const streamCache = new Store("streams");
 
 const internalStreamCache = new Map();
 
 export function createStream(obj) {
     const streamID = nanoid(),
-        iv = randomBytes(16).toString('base64url'),
-        secret = randomBytes(32).toString('base64url'),
+        iv = randomBytes(16).toString("base64url"),
+        secret = randomBytes(32).toString("base64url"),
         exp = new Date().getTime() + env.streamLifespan * 1000,
-        hmac = hashHmac(`${streamID},${exp},${iv},${secret}`, 'stream').toString('base64url'),
+        hmac = hashHmac(`${streamID},${exp},${iv},${secret}`, "stream").toString("base64url"),
         streamData = {
             exp: exp,
             type: obj.type,
@@ -41,27 +41,23 @@ export function createStream(obj) {
             audioFormat: obj.audioFormat,
 
             isHLS: obj.isHLS || false,
-            originalRequest: obj.originalRequest
+            originalRequest: obj.originalRequest,
         };
 
     // FIXME: this is now a Promise, but it is not awaited
     //        here. it may happen that the stream is not
     //        stored in the Store before it is requested.
-    streamCache.set(
-        streamID,
-        encryptStream(streamData, iv, secret),
-        env.streamLifespan
-    );
+    streamCache.set(streamID, encryptStream(streamData, iv, secret), env.streamLifespan);
 
-    let streamLink = new URL('/tunnel', env.apiURL);
+    let streamLink = new URL("/tunnel", env.apiURL);
 
     const params = {
-        'id': streamID,
-        'exp': exp,
-        'sig': hmac,
-        'sec': secret,
-        'iv': iv
-    }
+        id: streamID,
+        exp: exp,
+        sig: hmac,
+        sec: secret,
+        iv: iv,
+    };
 
     for (const [key, value] of Object.entries(params)) {
         streamLink.searchParams.append(key, value);
@@ -89,7 +85,7 @@ export function createProxyTunnels(info) {
                 headers: info?.headers,
                 requestIP: info?.requestIP,
 
-                originalRequest: info?.originalRequest
+                originalRequest: info?.originalRequest,
             })
         );
     }
@@ -103,20 +99,20 @@ export function getInternalTunnel(id) {
 
 export function getInternalTunnelFromURL(url) {
     url = new URL(url);
-    if (url.hostname !== '127.0.0.1') {
+    if (url.hostname !== "127.0.0.1") {
         return;
     }
 
-    const id = url.searchParams.get('id');
+    const id = url.searchParams.get("id");
     return getInternalTunnel(id);
 }
 
 export function createInternalStream(url, obj = {}) {
-    assert(typeof url === 'string');
+    assert(typeof url === "string");
 
     let dispatcher = obj.dispatcher;
     if (obj.requestIP) {
-        dispatcher = freebind?.dispatcherFromIP(obj.requestIP, { strict: false })
+        dispatcher = freebind?.dispatcherFromIP(obj.requestIP, { strict: false });
     }
 
     const streamID = nanoid();
@@ -139,29 +135,29 @@ export function createInternalStream(url, obj = {}) {
         controller,
         dispatcher,
         isHLS: obj.isHLS,
-        transplant: obj.transplant
+        transplant: obj.transplant,
     });
 
-    let streamLink = new URL('/itunnel', `http://127.0.0.1:${env.tunnelPort}`);
-    streamLink.searchParams.set('id', streamID);
+    let streamLink = new URL("/itunnel", `http://127.0.0.1:${env.tunnelPort}`);
+    streamLink.searchParams.set("id", streamID);
 
     const cleanup = () => {
         destroyInternalStream(streamLink);
-        controller.signal.removeEventListener('abort', cleanup);
-    }
+        controller.signal.removeEventListener("abort", cleanup);
+    };
 
-    controller.signal.addEventListener('abort', cleanup);
+    controller.signal.addEventListener("abort", cleanup);
 
     return streamLink.toString();
 }
 
 function getInternalTunnelId(url) {
     url = new URL(url);
-    if (url.hostname !== '127.0.0.1') {
+    if (url.hostname !== "127.0.0.1") {
         return;
     }
 
-    return url.searchParams.get('id');
+    return url.searchParams.get("id");
 }
 
 export function destroyInternalStream(url) {
@@ -173,19 +169,19 @@ export function destroyInternalStream(url) {
     }
 }
 
-const transplantInternalTunnels = function(tunnelUrls, transplantUrls) {
+const transplantInternalTunnels = function (tunnelUrls, transplantUrls) {
     if (tunnelUrls.length !== transplantUrls.length) {
         return;
     }
 
-    for (const [ tun, url ] of zip(tunnelUrls, transplantUrls)) {
+    for (const [tun, url] of zip(tunnelUrls, transplantUrls)) {
         const id = getInternalTunnelId(tun);
         const itunnel = getInternalTunnel(id);
 
         if (!itunnel) continue;
         itunnel.url = url;
     }
-}
+};
 
 const transplantTunnel = async function (dispatcher) {
     if (this.pendingTransplant) {
@@ -194,13 +190,13 @@ const transplantTunnel = async function (dispatcher) {
     }
 
     let finished;
-    this.pendingTransplant = new Promise(r => finished = r);
+    this.pendingTransplant = new Promise(r => (finished = r));
 
     try {
         const handler = await import(`../processing/services/${this.service}.js`);
         const response = await handler.default({
             ...this.originalRequest,
-            dispatcher
+            dispatcher,
         });
 
         if (!response.urls) {
@@ -220,13 +216,12 @@ const transplantTunnel = async function (dispatcher) {
         }
 
         transplantInternalTunnels(tunnels, response.urls);
-    }
-    catch {}
-    finally {
+    } catch {
+    } finally {
         finished();
         delete this.pendingTransplant;
     }
-}
+};
 
 function wrapStream(streamInfo) {
     const url = streamInfo.urls;
@@ -235,22 +230,21 @@ function wrapStream(streamInfo) {
         streamInfo.transplant = transplantTunnel.bind(streamInfo);
     }
 
-    if (typeof url === 'string') {
+    console.log(streamInfo);
+    if (typeof url === "string") {
         streamInfo.urls = createInternalStream(url, streamInfo);
     } else if (Array.isArray(url)) {
         for (const idx in streamInfo.urls) {
-            streamInfo.urls[idx] = createInternalStream(
-                streamInfo.urls[idx], streamInfo
-            );
+            streamInfo.urls[idx] = createInternalStream(streamInfo.urls[idx], streamInfo);
         }
-    } else throw 'invalid urls';
+    } else throw "invalid urls";
 
     return streamInfo;
 }
 
 export async function verifyStream(id, hmac, exp, secret, iv) {
     try {
-        const ghmac = hashHmac(`${id},${exp},${iv},${secret}`, 'stream').toString('base64url');
+        const ghmac = hashHmac(`${id},${exp},${iv},${secret}`, "stream").toString("base64url");
         const cache = await streamCache.get(id.toString());
 
         if (ghmac !== String(hmac)) return { status: 401 };
@@ -260,12 +254,10 @@ export async function verifyStream(id, hmac, exp, secret, iv) {
 
         if (!streamInfo) return { status: 404 };
 
-        if (Number(exp) <= new Date().getTime())
-            return { status: 404 };
+        if (Number(exp) <= new Date().getTime()) return { status: 404 };
 
         return wrapStream(streamInfo);
-    }
-    catch {
+    } catch {
         return { status: 500 };
     }
 }

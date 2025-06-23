@@ -3,7 +3,7 @@ import stream from "./types.js";
 import { closeResponse } from "./shared.js";
 import { internalStream } from "./internal.js";
 
-export default async function(res, streamInfo) {
+export default async function (res, streamInfo) {
     try {
         switch (streamInfo.type) {
             case "proxy":

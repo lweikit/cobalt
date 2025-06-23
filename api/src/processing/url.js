@@ -71,6 +71,12 @@ function aliasURL(url) {
             }
             break;
 
+        case "mewatch":
+            if (host.tld === 'com') {
+                url.hostname = url.hostname.replace('mewatch.com', 'mewatch.sg')
+            }
+            break;
+
         case "facebook":
         case "fb":
             if (url.searchParams.get('v')) {
